@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>NGOBROL!</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      #messages {
+        border: 1px solid #ccc;
+        padding: 10px;
+        height: 1500px;
+        overflow-y: scroll;
+        background: #f9f9f9;
+      }
+      .message {
+        margin: 10px 0;
+        padding: 5px;
+        border-bottom: 1px solid #ddd;
+      }
+      .me {
+        background-color: rgb(255, 225, 185);
+      }
+      .other {
+        background-color: #c8f9cc;
+      }
+      input[type="text"] {
+        padding: 5px;
+        width: 300px;
+      }
+    </style>
+  </head>
+  <body>
+    <center>
+      <h2>NGOBROL RAHASIA</h2>
+      <label for="username"></label>
+      MASUKAN NAMA RAHASIA<br />
+      <input type="text" id="username" placeholder="" /><br />
+      <button onclick="setUsername()">SET</button><br /><br />
+      TULIS OBROLAN KAMU<br />
+      <input type="text" id="messageInput" placeholder="" /><br />
+      <button onclick="sendMessage()">KIRIM</button><br /><br />
+    </center>
+
+    <div id="messages"></div>
+    <br />
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+
+    <script>
+      const firebaseConfig = {
+        apiKey: "AIzaSyBE4TvGyh3Xu7RoWScanrZSV_QBxlXYBN4",
+        authDomain: "chatarah-e15f3.firebaseapp.com",
+        databaseURL: "https://chatarah-e15f3-default-rtdb.firebaseio.com",
+        projectId: "chatarah-e15f3",
+        storageBucket: "chatarah-e15f3.firebasestorage.app",
+        messagingSenderId: "611477719657",
+        appId: "1:611477719657:web:58103ecce9fc4e33cb70f8",
+      };
+
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.database();
+      const messagesRef = db.ref("messages");
+
+      function setUsername() {
+        const input = document.getElementById("username");
+        const name = input.value.trim();
+        if (name) {
+          localStorage.setItem("chatUsername", name);
+          input.value = name;
+          input.disabled = true;
+        }
+      }
+
+      function loadUsername() {
+        const savedName = localStorage.getItem("chatUsername");
+        const input = document.getElementById("username");
+        if (savedName) {
+          input.value = savedName;
+          input.disabled = true;
+        }
+      }
+
+      function generateID() {
+        return "msg" + Math.random().toString(36).substr(2, 9);
+      }
+
+      function sendMessage() {
+        const username = localStorage.getItem("chatUsername");
+        const input = document.getElementById("messageInput");
+        const message = input.value.trim();
+
+        if (!username || !message) return;
+
+        //awholicers
+        if (message.toLowerCase() === "resetnama") {
+          localStorage.removeItem("chatUsername");
+          document.getElementById("username").disabled = false;
+          document.getElementById("username").value = "";
+          alert("");
+          input.value = "";
+          return;
+        }
+
+        messagesRef.push({
+          id: generateID(),
+          name: username,
+          text: message,
+          timestamp: Date.now(),
+        });
+
+        input.value = "";
+      }
+
+      //Dibuat oleh Initial A you know who i am dengan bantuan teknologi canggih.
+      messagesRef
+        .orderByChild("timestamp")
+        .on("child_added", function (snapshot) {
+          const msg = snapshot.val();
+          const msgElem = document.createElement("div");
+          msgElem.classList.add("message");
+
+          const currentUser = document.getElementById("username").value;
+          msgElem.classList.add(msg.name === currentUser ? "me" : "other");
+
+          const time = new Date(msg.timestamp).toLocaleTimeString();
+
+          msgElem.innerHTML = `
+        <div> <*${msg.name} - ${time}*>
+        <div> ${msg.text}</div>
+        
+      `;
+
+          const messagesContainer = document.getElementById("messages");
+          messagesContainer.appendChild(msgElem);
+          messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        });
+
+      window.onload = loadUsername;
+    </script>
+  </body>
+</html>
