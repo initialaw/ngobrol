@@ -67,12 +67,24 @@
 
       function setUsername() {
         const input = document.getElementById("username");
-        const name = input.value.trim();
-        if (name) {
-          localStorage.setItem("chatUsername", name);
-          input.value = name;
-          input.disabled = true;
-        }
+        const rawName = input.value.trim();
+        const nameKey = rawName.toLowerCase();
+
+        if (!rawName) return;
+
+        const usernamesRef = db.ref("usernames/" + nameKey);
+
+        usernamesRef.once("value", function (snapshot) {
+          if (snapshot.exists()) {
+            alert("Username sudah digunakan, pakai yang lain.");
+          } else {
+            localStorage.setItem("chatUsername", rawName);
+            input.value = rawName;
+            input.disabled = true;
+
+            usernamesRef.set(true);
+          }
+        });
       }
 
       function loadUsername() {
@@ -95,8 +107,14 @@
 
         if (!username || !message) return;
 
-        //awholicers
+        //axwxhxoxlxixcxexrxs
         if (message.toLowerCase() === "resetnama") {
+          const oldName = localStorage.getItem("chatUsername");
+          if (oldName) {
+            const nameKey = oldName.toLowerCase();
+            db.ref("usernames/" + nameKey).remove();
+          }
+
           localStorage.removeItem("chatUsername");
           document.getElementById("username").disabled = false;
           document.getElementById("username").value = "";
@@ -115,7 +133,6 @@
         input.value = "";
       }
 
-      //Dibuat oleh Initial A you know who i am dengan bantuan teknologi canggih.
       messagesRef
         .orderByChild("timestamp")
         .on("child_added", function (snapshot) {
@@ -128,16 +145,47 @@
 
           const time = new Date(msg.timestamp).toLocaleTimeString();
 
+          msgElem.setAttribute("id", msg.id);
+
           msgElem.innerHTML = `
-        <div> <*${msg.name} - ${time}*>
-        <div> ${msg.text}</div>
-        
-      `;
+      <div><strong>${msg.name}</strong> - ${time}</div>
+      <div>${msg.text}</div>
+    `;
+
+          if (currentUser.toLowerCase() === "x0superx0userx0") {
+            const delBtn = document.createElement("button");
+            delBtn.textContent = "X";
+            delBtn.style.marginTop = "5px";
+            delBtn.onclick = function () {
+              const confirmDelete = confirm("Yakin ingin menghapus pesan ini?");
+              if (confirmDelete) {
+                deleteMessageById(msg.id);
+              }
+            };
+            msgElem.appendChild(delBtn);
+          }
 
           const messagesContainer = document.getElementById("messages");
           messagesContainer.appendChild(msgElem);
           messagesContainer.scrollTop = messagesContainer.scrollHeight;
         });
+
+      function deleteMessageById(messageId) {
+        messagesRef.once("value", function (snapshot) {
+          snapshot.forEach(function (childSnapshot) {
+            const message = childSnapshot.val();
+            if (message.id === messageId) {
+              childSnapshot.ref.remove();
+
+              // Dibuat oleh Initial A you know who i am dengan bantuan teknologi canggih.
+              const elem = document.getElementById(messageId);
+              if (elem) {
+                elem.remove();
+              }
+            }
+          });
+        });
+      }
 
       window.onload = loadUsername;
     </script>
