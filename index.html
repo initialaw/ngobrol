@@ -1,50 +1,154 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>NGOBROL!</title>
+    <title>YAPYAP!</title>
     <style>
+      * {
+        box-sizing: border-box;
+      }
+
       body {
-        font-family: Arial, sans-serif;
-        margin: 20px;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #9ac5e8;
+        color: #14171a;
       }
-      #messages {
-        border: 1px solid #ccc;
+
+      h1 {
+        margin-top: 5px;
+        color: #002f76;
+      }
+
+      #usernameBar {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        z-index: 1000;
+        background-color: #9ac5e8;
         padding: 10px;
-        height: 1500px;
-        overflow-y: scroll;
-        background: #f9f9f9;
+        box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+        text-align: center;
       }
+
+      #inputBar {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        z-index: 1000;
+        background-color: #9ac5e8;
+        padding: 10px;
+        box-shadow: 0px -2px 8px rgba(0, 0, 0, 0.1);
+        text-align: center;
+      }
+
+      input[type="text"] {
+        padding: 10px;
+        width: 70%;
+        max-width: 900px;
+        border: 1px solid #ccd6dd;
+        border-radius: 10px;
+        margin-top: 3px;
+        outline: none;
+        font-size: 14px;
+      }
+
+      button {
+        margin-top: 3px;
+        padding: 10px 10px;
+        background-color: #002f76;
+        border: none;
+        border-radius: 5px;
+        color: white;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background-color 0.2s ease;
+      }
+
+      button:hover {
+        background-color: #1774ff;
+      }
+
+      #messages {
+        max-width: 1200px;
+        margin: 130px auto 80px auto;
+        border: 1px solid #e1e8ed;
+        border-radius: 10px;
+        padding: 10px;
+        height: calc(100vh - 190px);
+        overflow-y: scroll;
+        background-color: #ffffff;
+      }
+
       .message {
         margin: 10px 0;
-        padding: 5px;
-        border-bottom: 1px solid #ddd;
+        padding: 10px;
+        border-radius: 10px;
+        max-width: 80%;
+        clear: both;
+        word-wrap: break-word;
+        position: relative;
       }
+
       .me {
-        background-color: rgb(255, 225, 185);
+        background-color: #84e4ff;
+        align-self: flex-end;
+        margin-left: auto;
+        text-align: right;
       }
+
       .other {
-        background-color: #c8f9cc;
+        background-color: #fdbfbf;
+        align-self: flex-start;
+        margin-right: auto;
+        text-align: left;
       }
-      input[type="text"] {
-        padding: 5px;
-        width: 300px;
+
+      .message div:first-child {
+        font-weight: bold;
+        font-size: 12px;
+        margin-bottom: 5px;
+        color: #3f3f3f;
+      }
+
+      .message div:last-child {
+        font-size: 14px;
+      }
+
+      .message button {
+        position: absolute;
+        bottom: 5px;
+        right: 5px;
+        background-color: red;
+        color: #000000;
+        border: none;
+        cursor: pointer;
+        font-size: 10px;
+        padding: 2px 5px;
+      }
+
+      .message button:hover {
+        text-decoration: underline;
       }
     </style>
   </head>
   <body>
-    <center>
-      <h2>NGOBROL RAHASIA</h2>
-      <label for="username"></label>
-      MASUKKAN NAMA RAHASIA<br />
-      <input type="text" id="username" placeholder="" /><br />
-      <button onclick="setUsername()">SET</button><br /><br />
-      TULIS OBROLAN KAMU<br />
-      <input type="text" id="messageInput" placeholder="" /><br />
-      <button onclick="sendMessage()">KIRIM</button><br /><br />
-    </center>
+    <!-- Username Bar -->
+    <div id="usernameBar">
+      <h1>HAPPY YAPPING!</h1>
+      <input type="text" id="username" placeholder="USERNAME:" />
+      <button onclick="setUsername()">SET</button>
+    </div>
 
+    <!-- Chat messages -->
     <div id="messages"></div>
-    <br />
+
+    <!-- Input Bar -->
+    <div id="inputBar">
+      <input type="text" id="messageInput" placeholder="PESAN:" /><br />
+      <button onclick="sendMessage()">YAP!</button>
+    </div>
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
@@ -56,7 +160,7 @@
         authDomain: "chatarah-e15f3.firebaseapp.com",
         databaseURL: "https://chatarah-e15f3-default-rtdb.firebaseio.com",
         projectId: "chatarah-e15f3",
-        storageBucket: "chatarah-e15f3.firebasestorage.app",
+        storageBucket: "chatarah-e15f3.appspot.com",
         messagingSenderId: "611477719657",
         appId: "1:611477719657:web:58103ecce9fc4e33cb70f8",
       };
@@ -83,9 +187,12 @@
             input.disabled = true;
 
             usernamesRef.set(true);
+            alert("Username berhasil disimpan!");
           }
         });
       }
+
+      //xaxwxhxoxlxixcxexrxsx
 
       function loadUsername() {
         const savedName = localStorage.getItem("chatUsername");
@@ -105,9 +212,13 @@
         const input = document.getElementById("messageInput");
         const message = input.value.trim();
 
-        if (!username || !message) return;
+        if (!username) {
+          alert("Setel username terlebih dahulu!");
+          return;
+        }
 
-        //axwxhxoxlxixcxexrxs
+        if (!message) return;
+
         if (message.toLowerCase() === "resetnama") {
           const oldName = localStorage.getItem("chatUsername");
           if (oldName) {
@@ -118,7 +229,7 @@
           localStorage.removeItem("chatUsername");
           document.getElementById("username").disabled = false;
           document.getElementById("username").value = "";
-          alert("");
+          alert("Username berhasil direset. Silakan buat nama baru.");
           input.value = "";
           return;
         }
@@ -143,14 +254,14 @@
           const currentUser = document.getElementById("username").value;
           msgElem.classList.add(msg.name === currentUser ? "me" : "other");
 
-          const time = new Date(msg.timestamp).toLocaleTimeString();
+          const time = new Date(msg.timestamp).toLocaleTimeString("id-ID");
 
           msgElem.setAttribute("id", msg.id);
 
           msgElem.innerHTML = `
-      <div><strong>${msg.name}</strong> - ${time}</div>
-      <div>${msg.text}</div>
-    `;
+            <div><strong>${msg.name}</strong> - ${time}</div>
+            <div>${msg.text}</div>
+          `;
 
           if (currentUser.toLowerCase() === "x0superx0userx0") {
             const delBtn = document.createElement("button");
@@ -170,6 +281,8 @@
           messagesContainer.scrollTop = messagesContainer.scrollHeight;
         });
 
+      //Created by Initial A you know who i am dengan bantuan teknologi canggih.
+
       function deleteMessageById(messageId) {
         messagesRef.once("value", function (snapshot) {
           snapshot.forEach(function (childSnapshot) {
@@ -177,7 +290,6 @@
             if (message.id === messageId) {
               childSnapshot.ref.remove();
 
-              // Dibuat oleh Initial A you know who i am dengan bantuan teknologi canggih.
               const elem = document.getElementById(messageId);
               if (elem) {
                 elem.remove();
