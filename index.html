@@ -29,17 +29,22 @@
       }
 
       #messages {
-        position: absolute;
-        top: 55px;
-        bottom: 65px;
-        left: 0;
-        right: 0;
+        position: relative;
+        height: 60vh;
+        margin: 10px;
         background-color: #ffffff;
         padding: 10px;
         overflow-y: auto;
-        border-top: 1px solid #ccc;
-        border-bottom: 1px solid #ccc;
-        height: calc(100vh - 120px);
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        border: 1px solid #ccc;
+      }
+
+      @media (max-width: 600px) {
+        #messages {
+          height: 60vh;
+          margin: 5px;
+        }
       }
 
       .message {
